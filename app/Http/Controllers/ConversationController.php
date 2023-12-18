@@ -22,4 +22,11 @@ class ConversationController extends Controller
         $newConvId= $newConv->conversation_id;
         return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $newConvId)->get();
     }
+
+    public function cont(Request $request, $conversation_id){
+        $conversation = Conversation::findOrFail($conversation_id);
+        $conversation->response .= ', second';
+        $conversation->save();
+        return Conversation::select('conversation_id','response','is_final')->where('conversation_id',$conversation_id)->get();
+    }
 }

@@ -21,5 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::get('/chat/conversation', [ConversationController::class, 'all']);
 Route::get('/chat/conversation/{conversation_id}', [ConversationController::class, 'view']);
-
 Route::post('/chat/conversation', [ConversationController::class, 'index']);
+Route::put('/chat/conversation/{conversation_id}', [ConversationController::class,'cont']);
