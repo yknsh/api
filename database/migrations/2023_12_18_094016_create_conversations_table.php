@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('conversations', function (Blueprint $table) {
-            $table->id();
-            $table->string('conversation_id')->unique();
+            
+            $table->string('conversation_id')->unique()->primary(); ;
             $table->text('response');
             $table->string('is_final')->default('false');
             $table->timestamps();

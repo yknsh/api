@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
 Route::get('/chat/conversation', [ConversationController::class, 'all']);
 Route::get('/chat/conversation/{conversation_id}', [ConversationController::class, 'view']);
-Route::post('/chat/conversation', [ConversationController::class, 'index']);
+Route::post('/chat/conversation', [ConversationController::class, 'create']);
 Route::put('/chat/conversation/{conversation_id}', [ConversationController::class,'cont']);

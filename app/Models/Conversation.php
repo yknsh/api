@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Conversation extends Model
 {
-    protected $fillable = ['conversation_id','response','is_final'];
     
+    protected $fillable = ['conversation_id','response','is_final'];
+    public $incrementing = false;
+    public $keyType = 'string';
+
     use HasFactory;
 }
