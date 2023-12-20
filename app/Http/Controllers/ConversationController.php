@@ -5,21 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use OpenAI;
 
 class ConversationController extends Controller
 {
+    public function open_ai()
+    {
+        $client = \OpenAI::client(env('OPEN_AI_TOKEN'));
+
+        $prompt = "What is Laravel framework";
+
+        $result = $client->completions()->create([
+            'model' => "text-davinci-003",
+            'prompt' => $prompt,
+        ]);
+
+        echo $result['choices'][0]['text'];
+    }
     
-    public function handle(\OpenAI\Client $client, $prompt = null)
-{
-    $result = $client->completions()->create([
-        'prompt' => $prompt,
-        'model' => 'gpt-3.5-turbo-instruct',
-        'max_tokens' => 20,
-    ]);
-
-    return $result->choices[0]->text;
-
-}
 
     public function all(){
         return Conversation::select('conversation_id','response','is_final')->get();
@@ -32,9 +35,12 @@ class ConversationController extends Controller
 
     public function create(Request $request){
         
-        $prompt = $request->input('prompt');
-        
-        $result = $this->handle(app(\OpenAI\Client::class), $prompt);
+        $client = OpenAI::client(getenv('OPEN_AI_TOKEN'));
+
+        $result = $client->completions()->create([
+            'model' => "text-davinci-003",
+            'prompt' => $request,
+        ]);
 
         $newConv= Conversation::create([
             'conversation_id' => Str::random(10),
