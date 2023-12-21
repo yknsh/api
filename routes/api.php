@@ -24,3 +24,5 @@ Route::get('/chat/conversation', [ConversationController::class, 'all']);
 Route::get('/chat/conversation/{conversation_id}', [ConversationController::class, 'view']);
 Route::post('/chat/conversation', [ConversationController::class, 'create']);
 Route::put('/chat/conversation/{conversation_id}', [ConversationController::class,'cont']);
+Route::delete('/chat/conversation/{conversation_id}', [ConversationController::class,'del']);
+Route::delete('/chat/conversation/', [ConversationController::class,'delAll']);
