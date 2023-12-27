@@ -5,44 +5,79 @@ namespace App\Http\Controllers;
 use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use OpenAI;
 
 class ConversationController extends Controller
 {
-    public function open_ai($prompt){
-        $key = env('API_KEY');
-        $client = OpenAI::client($key);
-
-        $result = $client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
-            'max_tokens' => 90,
-            "messages" => [['role' => 'user', 'content' => $prompt],],
-        ]); 
-
-        return $result->choices[0]->message->content;
-    }
     
+    public function generator($id){
+
+        $currConv = Conversation::where('conversation_id', $id)->value('response');
+        
+        $result = array("lorem ipsum ","dolor sit amet, ","magna aliqua.", "consectetur adipiscing ", "elit, sed ", "do eiusmod ", "tempor incididunt, ", "ut labore ","et dolore.");
+        
+        $conv = "";
+        
+        if($currConv == ""){
+            $nxtUpper=true;
+        }else{
+            $nxtUpper=false;
+        }
+        foreach ($result as $key) {
+            $rand = \Arr::random($result);
+            
+            if($nxtUpper===true){
+                $rand = ucfirst($rand);
+                $nxtUpper = false;
+            }
+            if(Str::endsWith($rand,'.')){
+                $rand .= " ";
+                $nxtUpper = true;
+            }
+            $conv = $conv . $rand;
+        }
+        // $alp =  range('A', 'Z');
+        $conv = trim($conv, substr($conv, -1));
+        $conv = " " . $conv;
+        
+        return $conv;
+    }
 
     public function all(){
         return Conversation::select('conversation_id','response','is_final')->get();
     }
 
-    public function view($conversation_id){
-        return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $conversation_id)->get();
+    public function view($id){
+
+        $response = $this->generator($id);
+
+        $isfinal = Conversation::where('conversation_id', $id)->value('is_final');
+
+        $currConv = Conversation::where('conversation_id', $id)->value('response');
+
+        if($isfinal == 'true'){
+            return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $id)->get();
+        }else{
+            Conversation::where('conversation_id',$id)->update(['response' => $currConv . $response]);
+
+            if(Str::endsWith($response,'.')){
+                Conversation::where('conversation_id',$id)->update(['is_final' => 'true']);
+            }
+        }
+        return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $id)->get();
     }
 
     public function create(Request $request){
-        $result= $this->open_ai($request->input('prompt'));
-
-        $newConv= Conversation::create([
+        
+        $conversation = Conversation::create([
             'conversation_id' => Str::random(10),
-            'response' => $result,
+            'response' => '',
         ]);
-        return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $newConv->conversation_id)->get();
+        
+        return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $conversation->conversation_id)->get();
     }
 
     public function cont(Request $request, $conversation_id){
-        Conversation::where('conversation_id', $conversation_id)->update(['is_final'=> 'true']);
+        Conversation::where('conversation_id',$conversation_id)->update(['response' => '', 'is_final' => 'false']);
 
         return Conversation::select('conversation_id','response','is_final')->where('conversation_id', $conversation_id)->get();
     }
