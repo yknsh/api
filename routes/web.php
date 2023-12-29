@@ -19,3 +19,5 @@ Route::get('/', function () {
 
 Route::get('/chat',function(){return view('chat');});
 Route::get('/chat/conversation',function(){return view('conversation');});
+Route::put('/chat/conversation' ,function(){return view('conversation');});
+Route::post('/chat/conversation' ,function(){return view('conversation');});

@@ -1,4 +1,6 @@
 @use('App\Models\Conversation')
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,10 +23,9 @@
 <body>
 @php
 
-$row = Conversation::count();
-$id = Conversation::get('conversation_id');
-$idArr = $id->toArray();
-$currId= "";
+    $row = Conversation::count();
+    $idArr = Conversation::get('conversation_id')->toArray();
+    $currId= "";
 
 @endphp
 
@@ -39,20 +40,47 @@ $currId= "";
                     <td class="text-center p-6 text-sm text-gray-900 dark:text-white"> 
                         <a  class="mt-16" href="{{ url('chat/conversation?conversation_id='.Conversation::where('conversation_id', $idArr[$i])->value('conversation_id')) }}"> Chat id: {{ Conversation::where('conversation_id', $idArr[$i])->value('conversation_id') }} </a> 
                     </td>
+                    
                 </tr>
             @endfor
+                    <a class="text-center p-6 text-sm text-gray-900 dark:text-white" href="{{url('chat/conversation')}}">New chat</a>
         </table>
     </div>
     <div style="width:90%; z-index:1; right:1">
         @php
-            if(isset($_GET['conversation_id'])){
-                $response = Conversation::where('conversation_id', $_GET['conversation_id'])->value('response');
-            }
+                $id=""; 
+
+                if(isset($_GET['conversation_id'])){
+                    $id= $_GET['conversation_id'];
+
+
+                    $req = Request::create('/api/chat/conversation/'.$id,'GET');
+                    $req = Route::dispatch($req);
+                    $req = json_decode($req->getContent(),true);
+
+                    if($req[0]['is_final'] != 'true'){
+                        do{
+                            $req = Request::create('/api/chat/conversation/'.$id,'GET');
+                            $req = Route::dispatch($req);
+                            $req = json_decode($req->getContent(),true);
+                        }while($req[0]['is_final'] == 'false');
+                    }
+                    
+                    if(isset($_POST['conv'])){
+                        $put = Request::create('/api/chat/conversation/'.$id,'PUT');
+                        $put = Route::dispatch($put);
+                    }
+
+                }         
+
         @endphp
-        <h1 class="sub text-xl dark:text-white"> {{$response}} </h3>
-        <form method="put" action="">
-            <input type="text" name="conv" id="conv">
-            <input class="dark:bg-red-800/20 dark:text-white btn"type="submit" value="send">
+              
+
+        <h1 style="margin:20px" class="sub text-xl dark:text-white">  @if(isset($req)) {{ $req[0]['response']}} @endif </h3>
+        <form method="post" action="">
+            @csrf <!-- {{ csrf_field() }} -->
+            <input style="bottom: 2px; position:fixed; width:500px; height:50px; margin:10px;" type="text" name="conv" id="conv">
+            <input style="bottom: 2px; position:fixed; margin:10px; height:50px; left:47%" class="dark:bg-red-800/20 dark:text-white btn"type="submit" value="send">
         </form>
     </div>
 </div>
