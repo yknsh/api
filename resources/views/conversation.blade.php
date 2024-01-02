@@ -78,7 +78,6 @@
                     if(isset($_SESSION['rand'])){
                         if(isset($_POST['conv']) && $_POST['hidden']==$_SESSION['rand']){
                             
-
                             unset($_POST['conv']);
                             unset($_POST['hidden']);
 
